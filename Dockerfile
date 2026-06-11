@@ -1,17 +1,17 @@
-FROM ubuntu:latest AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
-RUN apt-get update && apt-get install -y openjdk-17-jdk maven
+WORKDIR /app
 
 COPY . .
 
-RUN apt-get install maven -y
+RUN mvn clean package -DskipTests
 
-RUN mvn clean install
+FROM eclipse-temurin:21-jre
 
-FROM openjdk:17-jdk-slim
+WORKDIR /app
+
+COPY --from=build /app/target/*.jar app.jar
 
 EXPOSE 8080
 
-COPY --from=build /target/gestao-psicologa-0.0.1-SNAPSHOT.jar app.jar
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java","-jar","app.jar"]
