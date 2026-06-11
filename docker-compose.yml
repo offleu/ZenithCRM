@@ -3,9 +3,9 @@ services:
     image: postgres:16
     container_name: zenith-psychology-postgres
     environment:
-      POSTGRES_DB: zenith_psychology
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${KEY_POSTGRES_URL}
+      POSTGRES_USER: ${KEY_POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${KEY_POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
