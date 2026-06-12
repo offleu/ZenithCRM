@@ -1,7 +1,7 @@
 package com.zenithcrm.psychology.security;
 
-import com.zenithcrm.psychology.user.AppUser;
-import com.zenithcrm.psychology.user.AppUserRepository;
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -22,7 +22,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import com.zenithcrm.psychology.user.AppUser;
+import com.zenithcrm.psychology.user.AppUserRepository;
 
 @Configuration
 public class SecurityConfig {
@@ -47,6 +48,7 @@ public class SecurityConfig {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(List.of(
+                "https://zenith-crm-front-end.vercel.app/",
                 "http://localhost:5173",
                 "http://127.0.0.1:5173",
                 "http://localhost:3000",
