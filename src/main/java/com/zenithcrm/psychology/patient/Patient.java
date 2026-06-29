@@ -3,6 +3,7 @@ package com.zenithcrm.psychology.patient;
 import com.zenithcrm.psychology.user.AppUser;
 import jakarta.persistence.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -23,6 +24,9 @@ public class Patient {
     private LocalDate birthDate;
     private String cpf;
 
+    @Column(precision = 12, scale = 2)
+    private BigDecimal sessionValue = BigDecimal.ZERO;
+
     @Column(length = 2000)
     private String clinicalNotes;
 
@@ -40,6 +44,7 @@ public class Patient {
         this.email = request.email();
         this.birthDate = request.birthDate();
         this.cpf = request.cpf();
+        this.sessionValue = request.sessionValue();
         this.clinicalNotes = request.clinicalNotes();
     }
 
@@ -50,5 +55,6 @@ public class Patient {
     public String getEmail() { return email; }
     public LocalDate getBirthDate() { return birthDate; }
     public String getCpf() { return cpf; }
+    public BigDecimal getSessionValue() { return sessionValue == null ? BigDecimal.ZERO : sessionValue; }
     public String getClinicalNotes() { return clinicalNotes; }
 }

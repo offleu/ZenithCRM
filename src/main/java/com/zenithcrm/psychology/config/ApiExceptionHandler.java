@@ -18,7 +18,7 @@ public class ApiExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("message", exception.getMessage()));
     }
 
-    @ExceptionHandler({BadCredentialsException.class, IllegalArgumentException.class})
+    @ExceptionHandler({BadCredentialsException.class, IllegalArgumentException.class, IllegalStateException.class})
     ResponseEntity<Map<String, String>> badRequest(RuntimeException exception) {
         return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
     }

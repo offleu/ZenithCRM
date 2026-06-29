@@ -47,6 +47,16 @@ public class Payment {
         update(patient, request);
     }
 
+    public Payment(AppUser psychologist, Patient patient, BigDecimal amount, LocalDate dueDate, String reference, String notes) {
+        this.psychologist = psychologist;
+        this.patient = patient;
+        this.amount = amount;
+        this.dueDate = dueDate;
+        this.status = PaymentStatus.PENDING;
+        this.reference = reference;
+        this.notes = notes;
+    }
+
     public void update(Patient patient, PaymentRequest request) {
         this.patient = patient;
         this.amount = request.amount();

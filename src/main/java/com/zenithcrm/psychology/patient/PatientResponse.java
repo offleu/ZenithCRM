@@ -1,5 +1,6 @@
 package com.zenithcrm.psychology.patient;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public record PatientResponse(
@@ -9,6 +10,7 @@ public record PatientResponse(
         String email,
         LocalDate birthDate,
         String cpf,
+        BigDecimal sessionValue,
         String clinicalNotes
 ) {
     public static PatientResponse from(Patient patient) {
@@ -19,6 +21,7 @@ public record PatientResponse(
                 patient.getEmail(),
                 patient.getBirthDate(),
                 patient.getCpf(),
+                patient.getSessionValue(),
                 patient.getClinicalNotes()
         );
     }

@@ -20,15 +20,18 @@ public class AppointmentController {
     private final PatientRepository patients;
     private final CurrentUserService currentUserService;
     private final GoogleCalendarService googleCalendarService;
+    private final AppointmentWorkflowService workflowService;
 
     public AppointmentController(AppointmentRepository appointments,
                                  PatientRepository patients,
                                  CurrentUserService currentUserService,
-                                 GoogleCalendarService googleCalendarService) {
+                                 GoogleCalendarService googleCalendarService,
+                                 AppointmentWorkflowService workflowService) {
         this.appointments = appointments;
         this.patients = patients;
         this.currentUserService = currentUserService;
         this.googleCalendarService = googleCalendarService;
+        this.workflowService = workflowService;
     }
 
     @GetMapping
@@ -38,6 +41,20 @@ public class AppointmentController {
         LocalDate start = from == null ? LocalDate.now().minusDays(7) : from;
         LocalDate end = to == null ? LocalDate.now().plusDays(30) : to;
         return appointments.findByPsychologistAndStartsAtBetweenOrderByStartsAt(user, start.atStartOfDay(), end.plusDays(1).atStartOfDay())
+                .stream()
+                .map(this::response)
+                .toList();
+    }
+
+    @GetMapping("/day")
+    List<AppointmentResponse> day(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        AppUser user = currentUserService.currentUser();
+        LocalDate selectedDate = date == null ? LocalDate.now() : date;
+        return appointments.findByPsychologistAndStartsAtBetweenOrderByStartsAt(
+                        user,
+                        selectedDate.atStartOfDay(),
+                        selectedDate.plusDays(1).atStartOfDay()
+                )
                 .stream()
                 .map(this::response)
                 .toList();
@@ -67,6 +84,21 @@ public class AppointmentController {
         appointments.delete(appointment);
     }
 
+    @PostMapping("/{id}/start")
+    AppointmentResponse start(@PathVariable Long id) {
+        return response(workflowService.start(id, currentUserService.currentUser()));
+    }
+
+    @PostMapping("/{id}/finish")
+    AppointmentResponse finish(@PathVariable Long id) {
+        return response(workflowService.finish(id, currentUserService.currentUser()));
+    }
+
+    @PostMapping("/{id}/absence")
+    AppointmentResponse absence(@PathVariable Long id) {
+        return response(workflowService.registerAbsence(id, currentUserService.currentUser()));
+    }
+
     private Patient patientFor(AppUser user, Long patientId) {
         return patients.findByIdAndPsychologist(patientId, user)
                 .orElseThrow(() -> new EntityNotFoundException("Paciente nao encontrado."));
@@ -77,12 +109,17 @@ public class AppointmentController {
                 appointment.getId(),
                 appointment.getPatient().getId(),
                 appointment.getPatient().getFullName(),
+                appointment.getPatient().getSessionValue(),
                 appointment.getStartsAt(),
                 appointment.getEndsAt(),
                 appointment.getStatus(),
                 appointment.getLocation(),
                 appointment.getNotes(),
                 appointment.getGoogleEventId(),
+                appointment.getStartedAt(),
+                appointment.getFinishedAt(),
+                appointment.getAbsenceRegisteredAt(),
+                appointment.getGeneratedPayment() == null ? null : appointment.getGeneratedPayment().getId(),
                 googleCalendarService.createEventUrl(appointment)
         );
     }
