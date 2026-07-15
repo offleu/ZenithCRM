@@ -36,7 +36,7 @@ public class PatientController {
     PatientResponse update(@PathVariable Long id, @Valid @RequestBody PatientRequest request) {
         AppUser user = currentUserService.currentUser();
         Patient patient = patients.findByIdAndPsychologist(id, user)
-                .orElseThrow(() -> new EntityNotFoundException("Paciente nao encontrado."));
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado."));
         patient.update(request);
         return PatientResponse.from(patients.save(patient));
     }
@@ -45,7 +45,7 @@ public class PatientController {
     void delete(@PathVariable Long id) {
         AppUser user = currentUserService.currentUser();
         Patient patient = patients.findByIdAndPsychologist(id, user)
-                .orElseThrow(() -> new EntityNotFoundException("Paciente nao encontrado."));
+                .orElseThrow(() -> new EntityNotFoundException("Paciente não encontrado."));
         patients.delete(patient);
     }
 }
