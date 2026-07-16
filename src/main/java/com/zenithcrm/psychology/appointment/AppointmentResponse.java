@@ -16,6 +16,7 @@ public record AppointmentResponse(
         String googleEventId,
         LocalDateTime startedAt,
         LocalDateTime finishedAt,
+        Integer durationMinutes,
         LocalDateTime absenceRegisteredAt,
         Long generatedPaymentId,
         String googleCalendarUrl
