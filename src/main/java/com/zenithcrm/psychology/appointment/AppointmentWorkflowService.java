@@ -31,7 +31,7 @@ public class AppointmentWorkflowService {
     public Appointment finish(Long appointmentId, AppUser user) {
         Appointment appointment = appointmentFor(appointmentId, user);
         if (appointment.getPatient().getSessionValue().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalStateException("Paciente sem valor de sessao cadastrado.");
+            throw new IllegalStateException("Paciente sem valor de sessão cadastrado.");
         }
         Payment payment = payments.save(new Payment(
                 user,
@@ -39,7 +39,7 @@ public class AppointmentWorkflowService {
                 appointment.getPatient().getSessionValue(),
                 appointment.getStartsAt().toLocalDate(),
                 "APPOINTMENT-" + appointment.getId(),
-                "Lancamento automatico do atendimento de " + appointment.getPatient().getFullName()
+                "Lançamento automático do atendimento de " + appointment.getPatient().getFullName()
         ));
         appointment.finish(LocalDateTime.now(), payment);
         return appointments.save(appointment);
@@ -56,4 +56,19 @@ public class AppointmentWorkflowService {
         return appointments.findByIdAndPsychologist(appointmentId, user)
                 .orElseThrow(() -> new EntityNotFoundException("Agendamento nao encontrado."));
     }
+
+    @Transactional
+    public Appointment confirm(Long appointmentId, AppUser user) {
+
+        Appointment appointment = appointmentFor(appointmentId, user);
+
+        appointment.confirm();
+
+        return appointments.save(appointment);
+
+    }
+
+
+
+
 }
