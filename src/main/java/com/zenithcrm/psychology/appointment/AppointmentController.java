@@ -84,6 +84,11 @@ public class AppointmentController {
         appointments.delete(appointment);
     }
 
+    @PostMapping("/{id}/confirm")
+    AppointmentResponse confirm(@PathVariable Long id) {
+        return response(workflowService.confirm(id, currentUserService.currentUser()));
+    }
+
     @PostMapping("/{id}/start")
     AppointmentResponse start(@PathVariable Long id) {
         return response(workflowService.start(id, currentUserService.currentUser()));
@@ -118,6 +123,7 @@ public class AppointmentController {
                 appointment.getGoogleEventId(),
                 appointment.getStartedAt(),
                 appointment.getFinishedAt(),
+                appointment.getDurationMinutes(),
                 appointment.getAbsenceRegisteredAt(),
                 appointment.getGeneratedPayment() == null ? null : appointment.getGeneratedPayment().getId(),
                 googleCalendarService.createEventUrl(appointment)
