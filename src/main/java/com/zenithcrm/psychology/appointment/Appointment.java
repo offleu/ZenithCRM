@@ -5,6 +5,7 @@ import com.zenithcrm.psychology.finance.Payment;
 import com.zenithcrm.psychology.user.AppUser;
 import jakarta.persistence.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
@@ -34,6 +35,9 @@ public class Appointment {
     private String googleEventId;
     private LocalDateTime startedAt;
     private LocalDateTime finishedAt;
+
+    private Integer durationMinutes;
+
     private LocalDateTime absenceRegisteredAt;
 
     @OneToOne
@@ -64,7 +68,7 @@ public class Appointment {
         } else if (request.status() == AppointmentStatus.COMPLETED
                 || request.status() == AppointmentStatus.IN_PROGRESS
                 || request.status() == AppointmentStatus.ABSENT) {
-            throw new IllegalArgumentException("Use as acoes do atendimento para iniciar, finalizar ou registrar ausencia.");
+            throw new IllegalArgumentException("Use as ações do atendimento para iniciar, finalizar ou registrar ausência.");
         } else {
             this.status = request.status();
         }
@@ -74,11 +78,17 @@ public class Appointment {
     }
 
     public void start(LocalDateTime startedAt) {
+
         if (status == AppointmentStatus.COMPLETED) {
-            throw new IllegalStateException("Atendimento ja finalizado.");
+            throw new IllegalStateException("Atendimento já finalizado.");
         }
+
         if (status == AppointmentStatus.ABSENT) {
-            throw new IllegalStateException("Atendimento ja marcado como ausencia.");
+            throw new IllegalStateException("Atendimento marcado como ausência.");
+        }
+
+        if (status != AppointmentStatus.CONFIRMED) {
+            throw new IllegalStateException("Confirme o atendimento antes de iniciá-lo.");
         }
         this.startedAt = startedAt;
         this.status = AppointmentStatus.IN_PROGRESS;
@@ -86,15 +96,20 @@ public class Appointment {
 
     public void finish(LocalDateTime finishedAt, Payment payment) {
         if (status == AppointmentStatus.ABSENT) {
-            throw new IllegalStateException("Atendimento com ausencia nao pode ser finalizado.");
+            throw new IllegalStateException("Atendimento com ausência não pode ser finalizado.");
         }
         if (generatedPayment != null) {
-            throw new IllegalStateException("Financeiro deste atendimento ja foi lancado.");
+            throw new IllegalStateException("Financeiro deste atendimento já foi lancado.");
         }
         if (startedAt == null) {
             throw new IllegalStateException("Inicie o atendimento antes de finalizar.");
         }
         this.finishedAt = finishedAt;
+
+        this.durationMinutes = (int) Duration
+                .between(startedAt, finishedAt)
+                .toMinutes();
+
         this.generatedPayment = payment;
         this.status = AppointmentStatus.COMPLETED;
     }
@@ -106,6 +121,22 @@ public class Appointment {
         this.absenceRegisteredAt = absenceRegisteredAt;
         this.status = AppointmentStatus.ABSENT;
     }
+
+
+    public void confirm() {
+
+        if(status != AppointmentStatus.SCHEDULED){
+
+            throw new IllegalStateException("...");
+
+        }
+
+        this.status = AppointmentStatus.CONFIRMED;
+
+    }
+
+
+
 
     public Long getId() { return id; }
     public AppUser getPsychologist() { return psychologist; }
@@ -120,4 +151,5 @@ public class Appointment {
     public LocalDateTime getAbsenceRegisteredAt() { return absenceRegisteredAt; }
     public Payment getGeneratedPayment() { return generatedPayment; }
     public String getNotes() { return notes; }
+    public Integer getDurationMinutes() {return durationMinutes;}
 }
